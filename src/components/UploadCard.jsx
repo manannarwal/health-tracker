@@ -157,6 +157,86 @@ export default function UploadCard() {
             unit: "mg/dL"
           };
           break;
+
+        // Comprehensive new metrics
+        case METRIC_TYPES.GLUCOSE:
+        case METRIC_TYPES.FASTING_GLUCOSE:
+        case METRIC_TYPES.RANDOM_GLUCOSE:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "mg/dL"
+          };
+          break;
+
+        case METRIC_TYPES.HBA1C:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "%"
+          };
+          break;
+
+        case METRIC_TYPES.TOTAL_CHOLESTEROL:
+        case METRIC_TYPES.HDL_CHOLESTEROL:
+        case METRIC_TYPES.LDL_CHOLESTEROL:
+        case METRIC_TYPES.VLDL_CHOLESTEROL:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "mg/dL"
+          };
+          break;
+
+        case METRIC_TYPES.TRIGLYCERIDES:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "mg/dL"
+          };
+          break;
+
+        case METRIC_TYPES.TSH:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "mIU/L"
+          };
+          break;
+
+        case METRIC_TYPES.T3:
+        case METRIC_TYPES.FREE_T3:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "ng/mL"
+          };
+          break;
+
+        case METRIC_TYPES.T4:
+        case METRIC_TYPES.FREE_T4:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "μg/dL"
+          };
+          break;
+
+        case METRIC_TYPES.VITAMIN_D:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "ng/mL"
+          };
+          break;
+
+        case METRIC_TYPES.VITAMIN_B12:
+          metricData = {
+            ...metricData,
+            value: parseFloat(formData.value),
+            unit: "pg/mL"
+          };
+          break;
       }
 
       // Validate the data
@@ -625,6 +705,104 @@ export default function UploadCard() {
                       <div className="flex items-center gap-2">
                         <Beaker className="h-4 w-4 text-amber-600" />
                         Urea
+                      </div>
+                    </SelectItem>
+                    
+                    {/* Glucose & Diabetes Profile */}
+                    <SelectItem value={METRIC_TYPES.GLUCOSE}>
+                      <div className="flex items-center gap-2">
+                        <Droplet className="h-4 w-4 text-blue-600" />
+                        Glucose
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.FASTING_GLUCOSE}>
+                      <div className="flex items-center gap-2">
+                        <Droplet className="h-4 w-4 text-blue-500" />
+                        Fasting Glucose
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.RANDOM_GLUCOSE}>
+                      <div className="flex items-center gap-2">
+                        <Droplet className="h-4 w-4 text-blue-400" />
+                        Random Glucose
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.HBA1C}>
+                      <div className="flex items-center gap-2">
+                        <Heart className="h-4 w-4 text-purple-600" />
+                        HbA1c (Glycosylated Hemoglobin)
+                      </div>
+                    </SelectItem>
+                    
+                    {/* Lipid Profile */}
+                    <SelectItem value={METRIC_TYPES.TOTAL_CHOLESTEROL}>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-yellow-600" />
+                        Total Cholesterol
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.TRIGLYCERIDES}>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-orange-600" />
+                        Triglycerides
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.HDL_CHOLESTEROL}>
+                      <div className="flex items-center gap-2">
+                        <Heart className="h-4 w-4 text-green-600" />
+                        HDL Cholesterol
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.LDL_CHOLESTEROL}>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-red-500" />
+                        LDL Cholesterol
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.VLDL_CHOLESTEROL}>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 text-red-400" />
+                        VLDL Cholesterol
+                      </div>
+                    </SelectItem>
+                    
+                    {/* Thyroid Function */}
+                    <SelectItem value={METRIC_TYPES.TSH}>
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-indigo-600" />
+                        TSH (Thyroid Stimulating Hormone)
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.T3}>
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-indigo-500" />
+                        T3
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.T4}>
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-indigo-400" />
+                        T4
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.FREE_T4}>
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-indigo-300" />
+                        Free T4
+                      </div>
+                    </SelectItem>
+                    
+                    {/* Vitamins */}
+                    <SelectItem value={METRIC_TYPES.VITAMIN_D}>
+                      <div className="flex items-center gap-2">
+                        <Thermometer className="h-4 w-4 text-yellow-500" />
+                        Vitamin D, 25-Hydroxy
+                      </div>
+                    </SelectItem>
+                    <SelectItem value={METRIC_TYPES.VITAMIN_B12}>
+                      <div className="flex items-center gap-2">
+                        <Thermometer className="h-4 w-4 text-pink-500" />
+                        Vitamin B12
                       </div>
                     </SelectItem>
                   </SelectContent>

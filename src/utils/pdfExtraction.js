@@ -1,7 +1,8 @@
 // Health data extraction utilities for PDF parsing and pattern recognition
 
-// Common health metric patterns with regex
+// Comprehensive health metric patterns for realistic medical reports
 export const healthPatterns = {
+  // Blood pressure
   bloodPressure: {
     patterns: [
       /(?:blood\s*pressure|bp|systolic|diastolic)[\s:]*(\d{2,3})[\s\/\-]+(\d{2,3})(?:\s*mmhg)?/gi,
@@ -9,7 +10,6 @@ export const healthPatterns = {
       /systolic[\s:]*(\d{2,3})[\s\w]*diastolic[\s:]*(\d{2,3})/gi
     ],
     type: 'bloodPressure',
-    unit: 'mmHg',
     processor: (matches) => {
       if (matches && matches.length >= 3) {
         const systolic = parseInt(matches[1]);
@@ -22,16 +22,292 @@ export const healthPatterns = {
     }
   },
 
+  // Glucose tests - comprehensive patterns for different glucose types
+  glucose: {
+    patterns: [
+      /(?:fasting\s*)?(?:blood\s*)?glucose[\s:]*(\d{2,3}\.?\d*)(?:\s*mg\/dl)?/gi,
+      /glucose[\s,]*fasting[\s:]*(\d{2,3}\.?\d*)/gi,
+      /glucose[\s,]*(?:serum|plasma)[\s:]*(\d{2,3}\.?\d*)/gi
+    ],
+    type: 'glucose',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 30 && value <= 600) {
+          return { value, unit: 'mg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  fastingGlucose: {
+    patterns: [
+      /fasting\s*glucose[\s:]*(\d{2,3}\.?\d*)/gi,
+      /glucose[\s,]*fasting[\s:]*(\d{2,3}\.?\d*)/gi,
+      /fbs[\s:]*(\d{2,3}\.?\d*)/gi
+    ],
+    type: 'fastingGlucose',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 30 && value <= 600) {
+          return { value, unit: 'mg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  randomGlucose: {
+    patterns: [
+      /random\s*glucose[\s:]*(\d{2,3}\.?\d*)/gi,
+      /glucose[\s,]*random[\s:]*(\d{2,3}\.?\d*)/gi,
+      /rbs[\s:]*(\d{2,3}\.?\d*)/gi
+    ],
+    type: 'randomGlucose',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 30 && value <= 600) {
+          return { value, unit: 'mg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  // HbA1c - Glycosylated Hemoglobin
+  hba1c: {
+    patterns: [
+      /(?:hba1c|hb\s*a1c|glycosylated\s*hemoglobin|glycosylated\s*hb)[\s:]*(\d{1,2}\.?\d*)(?:\s*%)?/gi,
+      /hemoglobin\s*a1c[\s:]*(\d{1,2}\.?\d*)/gi,
+      /a1c[\s:]*(\d{1,2}\.?\d*)/gi
+    ],
+    type: 'hba1c',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 3 && value <= 20) {
+          return { value, unit: '%' };
+        }
+      }
+      return null;
+    }
+  },
+
+  // Comprehensive Lipid Profile
+  totalCholesterol: {
+    patterns: [
+      /total\s*cholesterol[\s:]*(\d{2,3}\.?\d*)(?:\s*mg\/dl)?/gi,
+      /cholesterol[\s,]*total[\s:]*(\d{2,3}\.?\d*)/gi,
+      /serum\s*cholesterol[\s:]*(\d{2,3}\.?\d*)/gi
+    ],
+    type: 'totalCholesterol',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 100 && value <= 500) {
+          return { value, unit: 'mg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  triglycerides: {
+    patterns: [
+      /(?:serum\s*)?triglycerides[\s:]*(\d{2,3}\.?\d*)(?:\s*mg\/dl)?/gi,
+      /triglyceride[\s:]*(\d{2,3}\.?\d*)/gi,
+      /tg[\s:]*(\d{2,3}\.?\d*)/gi
+    ],
+    type: 'triglycerides',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 30 && value <= 1000) {
+          return { value, unit: 'mg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  hdlCholesterol: {
+    patterns: [
+      /(?:serum\s*)?hdl[\s\-]*cholesterol[\s:]*(\d{1,3}\.?\d*)(?:\s*mg\/dl)?/gi,
+      /hdl[\s:]*(\d{1,3}\.?\d*)/gi,
+      /high\s*density\s*lipoprotein[\s:]*(\d{1,3}\.?\d*)/gi
+    ],
+    type: 'hdlCholesterol',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 20 && value <= 100) {
+          return { value, unit: 'mg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  ldlCholesterol: {
+    patterns: [
+      /(?:serum\s*)?ldl[\s\-]*cholesterol[\s:]*(\d{1,3}\.?\d*)(?:\s*mg\/dl)?/gi,
+      /ldl[\s:]*(\d{1,3}\.?\d*)/gi,
+      /low\s*density\s*lipoprotein[\s:]*(\d{1,3}\.?\d*)/gi
+    ],
+    type: 'ldlCholesterol',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 50 && value <= 400) {
+          return { value, unit: 'mg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  vldlCholesterol: {
+    patterns: [
+      /(?:serum\s*)?vldl[\s\-]*cholesterol[\s:]*(\d{1,3}\.?\d*)(?:\s*mg\/dl)?/gi,
+      /vldl[\s:]*(\d{1,3}\.?\d*)/gi,
+      /very\s*low\s*density\s*lipoprotein[\s:]*(\d{1,3}\.?\d*)/gi
+    ],
+    type: 'vldlCholesterol',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 5 && value <= 100) {
+          return { value, unit: 'mg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  // Thyroid Function Tests
+  tsh: {
+    patterns: [
+      /(?:thyroid\s*stimulating\s*hormone|tsh)[\s:]*(\d{1,2}\.?\d*)(?:\s*(?:miu\/l|μiu\/ml|uiu\/ml))?/gi,
+      /tsh[\s:]*(\d{1,2}\.?\d*)/gi,
+      /s\.?\s*tsh[\s:]*(\d{1,2}\.?\d*)/gi
+    ],
+    type: 'tsh',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 0.1 && value <= 50) {
+          return { value, unit: 'mIU/L' };
+        }
+      }
+      return null;
+    }
+  },
+
+  t3: {
+    patterns: [
+      /(?:total\s*)?t3[\s:]*(\d{1,2}\.?\d*)(?:\s*(?:ng\/ml|nmol\/l))?/gi,
+      /triiodothyronine[\s:]*(\d{1,2}\.?\d*)/gi,
+      /t3[\s,]*total[\s:]*(\d{1,2}\.?\d*)/gi
+    ],
+    type: 't3',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 0.5 && value <= 5) {
+          return { value, unit: 'ng/mL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  t4: {
+    patterns: [
+      /(?:total\s*)?t4[\s:]*(\d{1,2}\.?\d*)(?:\s*(?:μg\/dl|ug\/dl))?/gi,
+      /thyroxine[\s:]*(\d{1,2}\.?\d*)/gi,
+      /t4[\s,]*total[\s:]*(\d{1,2}\.?\d*)/gi
+    ],
+    type: 't4',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 5 && value <= 25) {
+          return { value, unit: 'μg/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  freeT4: {
+    patterns: [
+      /free\s*t4[\s:]*(\d{1,2}\.?\d*)(?:\s*(?:ng\/dl|pmol\/l))?/gi,
+      /ft4[\s:]*(\d{1,2}\.?\d*)/gi,
+      /t4[\s,]*free[\s:]*(\d{1,2}\.?\d*)/gi
+    ],
+    type: 'freeT4',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 0.8 && value <= 2.8) {
+          return { value, unit: 'ng/dL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  // Vitamin D (25-Hydroxy)
+  vitaminD: {
+    patterns: [
+      /vitamin\s*d[\s,]*(?:25[\s\-]*hydroxy|total)[\s:]*(\d{1,3}\.?\d*)(?:\s*(?:ng\/ml|nmol\/l))?/gi,
+      /25[\s\-]*(?:oh|hydroxy)[\s\-]*(?:vitamin\s*)?d[\s:]*(\d{1,3}\.?\d*)/gi,
+      /calcidiol[\s:]*(\d{1,3}\.?\d*)/gi,
+      /vitamin\s*d3[\s:]*(\d{1,3}\.?\d*)/gi
+    ],
+    type: 'vitaminD',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 5 && value <= 200) {
+          return { value, unit: 'ng/mL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  // Vitamin B12
+  vitaminB12: {
+    patterns: [
+      /vitamin\s*b[\s\-]*12[\s:]*(\d{2,4}\.?\d*)(?:\s*(?:pg\/ml|pmol\/l))?/gi,
+      /b12[\s:]*(\d{2,4}\.?\d*)/gi,
+      /cobalamin[\s:]*(\d{2,4}\.?\d*)/gi,
+      /cyanocobalamin[\s:]*(\d{2,4}\.?\d*)/gi
+    ],
+    type: 'vitaminB12',
+    processor: (matches) => {
+      if (matches && matches.length >= 2) {
+        const value = parseFloat(matches[1]);
+        if (value >= 100 && value <= 2000) {
+          return { value, unit: 'pg/mL' };
+        }
+      }
+      return null;
+    }
+  },
+
+  // Keep existing patterns for backward compatibility
   bloodSugar: {
     patterns: [
       /(?:blood\s*sugar|glucose|blood\s*glucose)[\s:]*(\d{2,3}\.?\d*)(?:\s*mg\/dl)?/gi,
       /glucose[\s:]*(\d{2,3}\.?\d*)/gi,
-      /(\d{2,3}\.?\d*)\s*mg\/dl(?:\s*glucose|blood\s*sugar)?/gi,
-      /fasting\s*glucose[\s:]*(\d{2,3}\.?\d*)/gi,
-      /random\s*glucose[\s:]*(\d{2,3}\.?\d*)/gi
+      /(\d{2,3}\.?\d*)\s*mg\/dl(?:\s*glucose|blood\s*sugar)?/gi
     ],
     type: 'bloodSugar',
-    unit: 'mg/dL',
     processor: (matches) => {
       if (matches && matches.length >= 2) {
         const value = parseFloat(matches[1]);
@@ -43,15 +319,14 @@ export const healthPatterns = {
     }
   },
 
+  // Legacy cholesterol pattern (keeping for backward compatibility)
   cholesterol: {
     patterns: [
       /(?:total\s*)?cholesterol[\s:]*(\d{2,3}\.?\d*)(?:\s*mg\/dl)?/gi,
       /hdl[\s:]*(\d{1,3}\.?\d*)(?:\s*mg\/dl)?/gi,
-      /ldl[\s:]*(\d{1,3}\.?\d*)(?:\s*mg\/dl)?/gi,
-      /(?:total\s*cholesterol|tc)[\s:]*(\d{2,3}\.?\d*)[\s\w]*(?:hdl|high\s*density)[\s:]*(\d{1,3}\.?\d*)[\s\w]*(?:ldl|low\s*density)[\s:]*(\d{1,3}\.?\d*)/gi
+      /ldl[\s:]*(\d{1,3}\.?\d*)(?:\s*mg\/dl)?/gi
     ],
     type: 'cholesterol',
-    unit: 'mg/dL',
     processor: (matches, text) => {
       const result = {};
       
