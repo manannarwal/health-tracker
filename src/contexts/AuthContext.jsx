@@ -19,32 +19,51 @@ export const AuthProvider = ({ children }) => {
   // Initialize Google Identity Services
   useEffect(() => {
     const initializeGoogleAuth = () => {
+      console.log('Initializing Google Auth...');
       if (window.google) {
-        window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
-          callback: handleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-        });
+        try {
+          window.google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+          console.log('Google Auth initialized successfully');
+        } catch (error) {
+          console.error('Error initializing Google Auth:', error);
+        }
+      } else {
+        console.error('Google Identity Services not available');
       }
     };
 
-    // Load Google Identity Services script
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    script.onload = initializeGoogleAuth;
-    document.head.appendChild(script);
+    // Check if script is already loaded
+    if (window.google) {
+      initializeGoogleAuth();
+    } else {
+      // Load Google Identity Services script
+      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+          console.log('Google Identity Services script loaded');
+          initializeGoogleAuth();
+        };
+        script.onerror = () => {
+          console.error('Failed to load Google Identity Services script');
+        };
+        document.head.appendChild(script);
+      }
+    }
 
     // Check for existing session
     checkExistingSession();
 
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
+    // No cleanup needed as we want to keep the script loaded
   }, []);
 
   const checkExistingSession = () => {
@@ -76,8 +95,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const handleCredentialResponse = (response) => {
+    console.log('Google credential response received:', response);
     try {
       const decoded = jwtDecode(response.credential);
+      console.log('Decoded JWT:', decoded);
       
       const userData = {
         id: decoded.sub,
@@ -88,6 +109,8 @@ export const AuthProvider = ({ children }) => {
         family_name: decoded.family_name,
       };
 
+      console.log('User data extracted:', userData);
+
       // Save to localStorage
       localStorage.setItem('health-tracker-user', JSON.stringify(userData));
       localStorage.setItem('health-tracker-token', response.credential);
@@ -95,6 +118,8 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
       setIsLoading(false);
+      
+      console.log('User authentication completed successfully');
     } catch (error) {
       console.error('Error handling credential response:', error);
       setIsLoading(false);

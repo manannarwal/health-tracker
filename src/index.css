@@ -118,3 +118,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Google Sign-In Button Styling */
+.google-signin-button {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure Google button is visible in dark mode */
+.google-signin-button div {
+  border-radius: 6px !important;
+}
+
+/* Override any potential z-index issues */
+.google-signin-button iframe {
+  z-index: 1 !important;
+}

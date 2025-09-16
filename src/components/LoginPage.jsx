@@ -8,37 +8,78 @@ export default function LoginPage() {
   const { login, isLoading } = useAuth();
 
   useEffect(() => {
-    // Render Google Sign-In button
-    if (window.google && !isLoading) {
+    const renderGoogleButton = () => {
+      // Check if Google is available
+      if (!window.google) {
+        console.log('Google Identity Services not loaded yet');
+        return false;
+      }
+
+      const buttonContainer = document.getElementById('google-signin-button');
+      if (!buttonContainer) {
+        console.log('Button container not found');
+        return false;
+      }
+
       try {
-        window.google.accounts.id.renderButton(
-          document.getElementById('google-signin-button'),
-          {
-            theme: 'outline',
-            size: 'large',
-            width: 350,
-            text: 'signin_with',
-          }
-        );
+        // Clear any existing content
+        buttonContainer.innerHTML = '';
+        
+        window.google.accounts.id.renderButton(buttonContainer, {
+          theme: 'outline',
+          size: 'large',
+          width: 350,
+          text: 'signin_with',
+        });
+        
+        console.log('Google sign-in button rendered successfully');
+        
         // Hide fallback button since Google button rendered successfully
         const fallback = document.getElementById('custom-signin-fallback');
-        if (fallback) fallback.style.display = 'none';
+        if (fallback) {
+          fallback.style.display = 'none';
+        }
+        
+        return true;
       } catch (error) {
         console.error('Failed to render Google sign-in button:', error);
-        // Show fallback button if Google button fails
-        const fallback = document.getElementById('custom-signin-fallback');
-        if (fallback) fallback.style.display = 'block';
+        return false;
       }
-    } else {
-      // Show fallback if Google isn't loaded yet
-      setTimeout(() => {
-        const googleButton = document.getElementById('google-signin-button');
+    };
+
+    // Try to render immediately if Google is already loaded
+    if (window.google && !isLoading) {
+      if (renderGoogleButton()) {
+        return; // Successfully rendered
+      }
+    }
+
+    // Set up polling to wait for Google to load
+    const maxAttempts = 10;
+    let attempts = 0;
+    
+    const pollForGoogle = () => {
+      attempts++;
+      console.log(`Attempting to render Google button, attempt ${attempts}`);
+      
+      if (renderGoogleButton()) {
+        return; // Success
+      }
+      
+      if (attempts < maxAttempts) {
+        setTimeout(pollForGoogle, 500);
+      } else {
+        console.log('Max attempts reached, showing fallback button');
+        // Show fallback button if we can't render Google button
         const fallback = document.getElementById('custom-signin-fallback');
-        if (googleButton && googleButton.innerHTML.trim() === '' && fallback) {
+        if (fallback) {
           fallback.style.display = 'block';
         }
-      }, 1000);
-    }
+      }
+    };
+
+    // Start polling after a short delay
+    setTimeout(pollForGoogle, 100);
   }, [isLoading]);
 
   const handleCustomLogin = () => {
@@ -121,10 +162,10 @@ export default function LoginPage() {
               {/* Google Sign-In Button Container */}
               <div className="space-y-4">
                 <div className="flex justify-center">
-                  <div id="google-signin-button" className="google-signin-button"></div>
+                  <div id="google-signin-button" className="google-signin-button min-h-[44px]"></div>
                 </div>
                 
-                {/* Custom styled button as backup - only show if Google button fails to render */}
+                {/* Custom styled button as backup - show if Google button fails to render */}
                 <div className="text-center" id="custom-signin-fallback" style={{display: 'none'}}>
                   <Button
                     onClick={handleCustomLogin}
